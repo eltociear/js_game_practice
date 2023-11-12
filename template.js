@@ -30,14 +30,14 @@ function init() {
     characterPosY      = defaultPositionY;
     characterR         = 16; // 接触判定用の半径
     characterImage     = new Image();
-    characterImage.src = "./reimu.png";
+    characterImage.src = "./asset/reimu.png";
 
     // 敵の初期化
     enemyPosX      = defaultEnemyPositionX; // 右画面外
     enemyPosY      = defaultPositionY;
     enemyR         = 16; // 接触判定用の半径
     enemyImage     = new Image();
-    enemyImage.src = "./marisa.png";
+    enemyImage.src = "./asset/marisa.png";
     enemySpeed     = 5;
 
     // スコアの初期化
