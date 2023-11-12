@@ -2,8 +2,8 @@ let canvas, g;
 const defaultPositionX = 100;
 const defaultEnemyPositionX = 600;
 const defaultPositionY = 400;
-let characterPosX, characterPosY, characterImage; // 自キャラ関連の変数
-let enemyPosX, enemyPosY, enemyImage, enemySpeed; // 敵関連の変数
+let characterPosX, characterPosY, characterImage, characterR; // 自キャラ関連の変数
+let enemyPosX, enemyPosY, enemyImage, enemySpeed, enemyR; // 敵関連の変数
 let speed, acceleraiton;
 let score;
 
@@ -28,13 +28,14 @@ function init() {
     acceleraiton       = 0;
     characterPosX      = defaultPositionX;
     characterPosY      = defaultPositionY;
+    characterR         = 16; // 接触判定用の半径
     characterImage     = new Image();
     characterImage.src = "./reimu.png";
 
     // 敵の初期化
     enemyPosX      = defaultEnemyPositionX; // 右画面外
     enemyPosY      = defaultPositionY;
-    enemyR         = 16;
+    enemyR         = 16; // 接触判定用の半径
     enemyImage     = new Image();
     enemyImage.src = "./marisa.png";
     enemySpeed     = 5;
@@ -78,6 +79,16 @@ function update() {
         enemyPosX = defaultEnemyPositionX;
         // 敵が画面外に出たらスコアを加算
         score += 100;
+    }
+
+    // 自キャラと敵キャラの接触判定
+    let diffX = characterPosX - enemyPosX;
+    let diffY = characterPosY - enemyPosY;
+    // 2点間の距離を求める(3平方の定理)
+    let distance = Math.sqrt(diffX * diffX + diffY * diffY);
+    // 自キャラと敵キャラの距離が半径の和より小さい場合は接触している
+    if (distance < characterR + enemyR) {
+        enemySpeed = 0;
     }
 }
 
