@@ -16,6 +16,9 @@ onload = function () {
     setInterval("gameloop()", 16);
 };
 
+/**
+ * ゲームの初期化
+ */
 function init() {
     speed = 0;
     acceleraiton = 0;
@@ -35,9 +38,13 @@ function gameloop() {
     draw();
 }
 
+/**
+ * キャラクターの状態を更新する
+ */
 function update() {
     speed = speed + acceleraiton;
     characterPosY = characterPosY + speed;
+    // 地面に着いたら速度と加速度を0にする
     if (characterPosY > defaultPositionY) {
         characterPosY = defaultPositionY;
         speed = 0;
@@ -45,10 +52,15 @@ function update() {
     }
 }
 
+/**
+ * キャラクターを描画する
+ */
 function draw() {
+    // 画面を黒でクリア
     g.fillStyle = "rgb(0, 0, 0)";
     g.fillRect(0, 0, 480, 480);
 
+    // キャラクターを描画
     g.drawImage(
         characterImage,
         characterPosX - characterImage.width / 2,
