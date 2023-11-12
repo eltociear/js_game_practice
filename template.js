@@ -22,11 +22,11 @@ onload = function () {
  */
 function init() {
     // 自キャラの初期化
-    speed = 0;
-    acceleraiton = 0;
-    characterPosX = defaultPositionX;
-    characterPosY = defaultPositionY;
-    characterImage = new Image();
+    speed              = 0;
+    acceleraiton       = 0;
+    characterPosX      = defaultPositionX;
+    characterPosY      = defaultPositionY;
+    characterImage     = new Image();
     characterImage.src = "./reimu.png";
 
     // 敵の初期化
