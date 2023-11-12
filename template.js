@@ -1,7 +1,8 @@
 let canvas, g;
 const defaultPositionX = 100;
 const defaultPositionY = 400;
-let characterPosX, characterPosY, characterImage;
+let characterPosX, characterPosY, characterImage; // 自キャラ関連の変数
+let enemyPosX, enemyPosY, enemyImage, enemySpeed; // 敵関連の変数
 let speed, acceleraiton;
 
 onload = function () {
@@ -20,12 +21,21 @@ onload = function () {
  * ゲームの初期化
  */
 function init() {
+    // 自キャラの初期化
     speed = 0;
     acceleraiton = 0;
     characterPosX = defaultPositionX;
     characterPosY = defaultPositionY;
     characterImage = new Image();
     characterImage.src = "./reimu.png";
+
+    // 敵の初期化
+    enemyPosX      = 600; // 右画面外
+    enemyPosY      = defaultPositionY;
+    enemyR         = 16;
+    enemyImage     = new Image();
+    enemyImage.src = "./marisa.png";
+    enemySpeed     = 5;
 }
 
 function keydown(e) {
