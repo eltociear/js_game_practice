@@ -29,6 +29,10 @@ function init() {
 }
 
 function keydown(e) {
+    // 地面にいない場合はジャンプしない
+    if (characterPosY < defaultPositionY) {
+        return;
+    }
     // Y軸方向への1フレームあたりの移動量
     speed = -20;
     // (重力)
