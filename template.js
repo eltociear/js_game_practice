@@ -29,7 +29,9 @@ function init() {
 }
 
 function keydown(e) {
+    // Y軸方向への1フレームあたりの移動量
     speed = -20;
+    // (重力)
     acceleraiton = 1.5;
 }
 
