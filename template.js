@@ -5,6 +5,7 @@ const defaultPositionY = 400;
 let characterPosX, characterPosY, characterImage; // 自キャラ関連の変数
 let enemyPosX, enemyPosY, enemyImage, enemySpeed; // 敵関連の変数
 let speed, acceleraiton;
+let score;
 
 onload = function () {
     // 描画コンテキストの取得
@@ -37,6 +38,9 @@ function init() {
     enemyImage     = new Image();
     enemyImage.src = "./marisa.png";
     enemySpeed     = 5;
+
+    // スコアの初期化
+    score = 0;
 }
 
 function keydown(e) {
@@ -68,10 +72,12 @@ function update() {
         acceleraiton = 0;
     }
 
-    // 敵の移動
+    // 敵の状態更新
     enemyPosX -= enemySpeed;
     if (enemyPosX < -100) {
         enemyPosX = defaultEnemyPositionX;
+        // 敵が画面外に出たらスコアを加算
+        score += 100;
     }
 }
 
@@ -96,4 +102,11 @@ function draw() {
         enemyPosX - enemyImage.width / 2,
         enemyPosY - enemyImage.height / 2
     );
+
+    // スコア表示
+    g.fillStyle         = "rgb(255, 255, 255)";
+    g.font              = "16px Arial";
+    let scoreLabel      = "SCORE: " + score;
+    let scoreLabelWidth = g.measureText(scoreLabel).width; // スコアの文字列の幅を取得
+    g.fillText(scoreLabel, 460 - scoreLabelWidth, 40);
 }
