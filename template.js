@@ -133,28 +133,51 @@ function update() {
  * キャラクターを描画する
  */
 function draw() {
-    // 画面を黒でクリア
-    g.fillStyle = "rgb(0, 0, 0)";
-    g.fillRect(0, 0, 480, 480);
+    g.imageSmoothingEnabled = false;
 
-    // 自キャラ描画
-    g.drawImage(
-        characterImage,
-        characterPosX - characterImage.width / 2,
-        characterPosY - characterImage.height / 2
-    );
+    if (scene === Scenes.GameMain) {
+        // 画面を黒でクリア
+        g.fillStyle = "rgb(0, 0, 0)";
+        g.fillRect(0, 0, 480, 480);
 
-    // 敵キャラ描画
-    g.drawImage(
-        enemyImage,
-        enemyPosX - enemyImage.width / 2,
-        enemyPosY - enemyImage.height / 2
-    );
+        // 自キャラ描画
+        g.drawImage(
+            characterImage,
+            characterPosX - characterImage.width / 2,
+            characterPosY - characterImage.height / 2
+        );
 
-    // スコア表示
-    g.fillStyle         = "rgb(255, 255, 255)";
-    g.font              = "16px Arial";
-    let scoreLabel      = "SCORE: " + score;
-    let scoreLabelWidth = g.measureText(scoreLabel).width; // スコアの文字列の幅を取得
-    g.fillText(scoreLabel, 460 - scoreLabelWidth, 40);
+        // 敵キャラ描画
+        g.drawImage(
+            enemyImage,
+            enemyPosX - enemyImage.width / 2,
+            enemyPosY - enemyImage.height / 2
+        );
+
+        // スコア表示
+        g.fillStyle         = "rgb(255, 255, 255)";
+        g.font              = "16px Arial";
+        let scoreLabel      = "SCORE: " + score;
+        let scoreLabelWidth = g.measureText(scoreLabel).width; // スコアの文字列の幅を取得
+        g.fillText(scoreLabel, 460 - scoreLabelWidth, 40);
+    } else if (scene === Scenes.GameOver) {
+        // 画面を黒でクリア
+        g.fillStyle = "rgb(0, 0, 0)";
+        g.fillRect(0, 0, 480, 480);
+
+        // 自キャラ描画
+        if (frameCount < 120) {
+            g.save();
+            g.translate(characterPosX, characterPosY);
+            g.rotate(((frameCount % 30) * Math.PI / 2) / 30);
+            g.drawImage(
+                characterImage,
+                -characterImage.width / 2,
+                -characterImage.height / 2,
+                characterImage.width + frameCount,
+                characterImage.height + frameCount
+            );
+            g.restore();
+        }
+    }
 }
