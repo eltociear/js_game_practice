@@ -6,6 +6,12 @@ let characterPosX, characterPosY, characterImage, characterR; // 自キャラ関
 let enemyPosX, enemyPosY, enemyImage, enemySpeed, enemyR; // 敵関連の変数
 let speed, acceleraiton;
 let score;
+let scene;
+
+const Scenes = {
+    GameMain: "GameMain",
+    GameOver: "GameOver",
+};
 
 onload = function () {
     // 描画コンテキストの取得
@@ -40,8 +46,9 @@ function init() {
     enemyImage.src = "./asset/marisa.png";
     enemySpeed     = 5;
 
-    // スコアの初期化
+    // ゲーム管理データの初期化
     score = 0;
+    scene = Scenes.GameMain;
 }
 
 function keydown(e) {
@@ -64,31 +71,40 @@ function gameloop() {
  * キャラクターの状態を更新する
  */
 function update() {
-    speed = speed + acceleraiton;
-    characterPosY = characterPosY + speed;
-    // 地面に着いたら速度と加速度を0にする
-    if (characterPosY > defaultPositionY) {
-        characterPosY = defaultPositionY;
-        speed = 0;
-        acceleraiton = 0;
-    }
+    if (scene === Scenes.GameMain) {
+        // ゲーム中
+        speed = speed + acceleraiton;
+        characterPosY = characterPosY + speed;
+        // 地面に着いたら速度と加速度を0にする
+        if (characterPosY > defaultPositionY) {
+            characterPosY = defaultPositionY;
+            speed = 0;
+            acceleraiton = 0;
+        }
 
-    // 敵の状態更新
-    enemyPosX -= enemySpeed;
-    if (enemyPosX < -100) {
-        enemyPosX = defaultEnemyPositionX;
-        // 敵が画面外に出たらスコアを加算
-        score += 100;
-    }
+        // 敵の状態更新
+        enemyPosX -= enemySpeed;
+        if (enemyPosX < -100) {
+            enemyPosX = defaultEnemyPositionX;
+            // 敵が画面外に出たらスコアを加算
+            score += 100;
+        }
 
-    // 自キャラと敵キャラの接触判定
-    let diffX = characterPosX - enemyPosX;
-    let diffY = characterPosY - enemyPosY;
-    // 2点間の距離を求める(3平方の定理)
-    let distance = Math.sqrt(diffX * diffX + diffY * diffY);
-    // 自キャラと敵キャラの距離が半径の和より小さい場合は接触している
-    if (distance < characterR + enemyR) {
-        enemySpeed = 0;
+        // 自キャラと敵キャラの接触判定
+        let diffX = characterPosX - enemyPosX;
+        let diffY = characterPosY - enemyPosY;
+        // 2点間の距離を求める(3平方の定理)
+        let distance = Math.sqrt(diffX * diffX + diffY * diffY);
+        // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
+        if (distance < characterR + enemyR) {
+            scene = Scenes.GameOver;
+            speed = -20;
+            acceleraiton = 0.5;
+        }
+    } else if (scene === Scenes.GameOver) {
+        // ゲームオーバー
+        // 敵キャラの状態更新
+        enemyPosX += enemySpeed;
     }
 }
 
