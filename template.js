@@ -7,6 +7,8 @@ let enemyPosX, enemyPosY, enemyImage, enemySpeed, enemyR; // 敵関連の変数
 let speed, acceleraiton;
 let score;
 let scene;
+let frameCount;
+let bound;
 
 const Scenes = {
     GameMain: "GameMain",
@@ -47,8 +49,10 @@ function init() {
     enemySpeed     = 5;
 
     // ゲーム管理データの初期化
-    score = 0;
-    scene = Scenes.GameMain;
+    score      = 0;
+    frameCount = 0;
+    bound      = false;
+    scene      = Scenes.GameMain;
 }
 
 function keydown(e) {
@@ -78,8 +82,8 @@ function update() {
         // 地面に着いたら速度と加速度を0にする
         if (characterPosY > defaultPositionY) {
             characterPosY = defaultPositionY;
-            speed = 0;
-            acceleraiton = 0;
+            speed         = 0;
+            acceleraiton  = 0;
         }
 
         // 敵の状態更新
@@ -97,15 +101,32 @@ function update() {
         let distance = Math.sqrt(diffX * diffX + diffY * diffY);
         // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
         if (distance < characterR + enemyR) {
-            scene = Scenes.GameOver;
-            speed = -20;
+            scene        = Scenes.GameOver;
+            speed        = -20;
             acceleraiton = 0.5;
+            frameCount   = 0;
         }
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー
+        // 自キャラの状態更新
+        speed         += acceleraiton;
+        characterPosY += speed;
+        if (characterPosX < 20 || characterPosX > 460) {
+            // 画面端に移動したらバウンド
+            bound = !bound;
+        }
+        if (bound) {
+            characterPosX += 30;
+        } else {
+            characterPosX -= 30;
+        }
+
         // 敵キャラの状態更新
         enemyPosX += enemySpeed;
     }
+
+    // 現在何フレーム目かを記録
+    frameCount++;
 }
 
 /**
