@@ -169,7 +169,9 @@ function draw() {
         if (frameCount < 120) {
             g.save();
             g.translate(characterPosX, characterPosY);
+            // 30フレームで1回転
             g.rotate(((frameCount % 30) * Math.PI / 2) / 30);
+            // 拡大描画
             g.drawImage(
                 characterImage,
                 -characterImage.width / 2,
@@ -179,5 +181,12 @@ function draw() {
             );
             g.restore();
         }
+
+        // ゲームオーバー表示
+        g.fillStyle = "rgb(255, 255, 255)";
+        g.font      = "48px Arial";
+        let gameOverLabel = "GAME OVER";
+        let gameOverLabelWidth = g.measureText(gameOverLabel).width; // スコアの文字列の幅を取得
+        g.fillText(gameOverLabel, 240 - gameOverLabelWidth / 2, 240);
     }
 }
