@@ -2,13 +2,14 @@ let canvas, g;
 const defaultPositionX = 100;
 const defaultEnemyPositionX = 600;
 const defaultPositionY = 400;
-let player, enemy;
+let player, enemy, particles, moon, castle;
 let score;
 let scene;
 let frameCount;
 let bound;
-let particles;
+let next;
 
+// シーンの定義
 const Scenes = {
     GameMain: "GameMain",
     GameOver: "GameOver",
@@ -21,7 +22,11 @@ onload = function () {
     // 初期化
     init();
     // 入力処理の指定
-    document.onkeydown = keydown;
+    document.onkeydown   = keydown;
+    document.onkeyup     = keyup;
+    document.onmousedown = keydown;
+    document.onmouseup   = keyup;
+
     // ゲームループの設定 60FPS
     setInterval("gameloop()", 16);
 };
@@ -31,24 +36,24 @@ onload = function () {
  */
 function init() {
     // 自キャラの初期化
-    player              = new Sprite();
-    player.image        = new Image();
-    player.image.src    = "./asset/reimu.png";
-    player.posX         = defaultPositionX;
-    player.posY         = defaultPositionY;
-    player.speed        = 0;
-    player.acceleraiton = 0;
-    player.r            = 16; // 接触判定用の半径
+    player = new Player(100, 400, 16, "./asset/reimu.png", 0, 0);
 
-    // 敵の初期化
-    enemy              = new Sprite();
-    enemy.image        = new Image();
-    enemy.image.src    = "./asset/marisa.png";
-    enemy.posX         = defaultEnemyPositionX; // 右画面外
-    enemy.posY         = defaultPositionY;
-    enemy.speed        = 5;
-    enemy.acceleraiton = 0;
-    enemy.r            = 16; // 接触判定用の半径
+    // 敵キャラの初期化
+    enemy = [];
+    next  = 10;
+
+    // 月
+    moon           = new Sprite();
+    moon.posX      = 100;
+    moon.posY      = 100;
+    moon.image     = new Image();
+    moon.image.src = "./asset/moon.png";
+    // 城
+    castle           = new Sprite();
+    castle.posX      = 400;
+    castle.posY      = 296;
+    castle.image     = new Image();
+    castle.image.src = "./asset/castle.png";
 
     // パーティクルの初期化
     particles = [];
@@ -60,6 +65,7 @@ function init() {
     scene      = Scenes.GameMain;
 }
 
+let isKeyDown = false;
 function keydown(e) {
     if (scene === Scenes.GameMain) {
         // ゲームプレイ中
@@ -73,6 +79,14 @@ function keydown(e) {
             init();
         }
     }
+    isKeyDown = true;
+}
+
+function keyup(e) {
+    if (player.speed < 0) {
+        player.acceleraiton = 2.5;
+    }
+    isKeyDown = false;
 }
 
 function gameloop() {
@@ -86,38 +100,28 @@ function gameloop() {
 function update() {
     if (scene === Scenes.GameMain) {
         // ゲーム中
-        player.speed = player.speed + player.acceleraiton;
-        player.posY  = player.posY + player.speed;
-        // 地面に着いたら速度と加速度を0にする
-        if (player.posY > defaultPositionY) {
-            player.posY = defaultPositionY;
-            player.speed        = 0;
-            player.acceleraiton = 0;
-        }
+        // 自キャラの状態更新
+        player.update();
 
-        // 敵の状態更新
-        enemy.posX -= enemy.speed;
-        if (enemy.posX < -100) {
-            enemy.posX = defaultEnemyPositionX;
-            // 敵が画面外に出たらスコアを加算
-            score += 100;
-        }
-
-        // 自キャラと敵キャラの接触判定
-        let diffX = player.posX - enemy.posX;
-        let diffY = player.posY - enemy.posY;
-        // 2点間の距離を求める(3平方の定理)
-        let distance = Math.sqrt(diffX * diffX + diffY * diffY);
-        // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
-        if (distance < player.r + enemy.r) {
-            scene               = Scenes.GameOver;
-            frameCount          = 0;
-
-            // パーティクルの生成
-            for (let i = 0; i < 300; i++) {
-                particles.push(new Particle(player.posX, player.posY));
+        // 敵キャラの状態更新
+        enemy.forEach((e) => {
+            e.update();
+            // 端に到達したらスコアを加算
+            if (e.posX < -100) {
+                score += 100;
             }
+        });
+
+        // 端に到達したら敵キャラを削除
+        enemy = enemy.filter((e) => e.posX >= -100);
+
+        // 敵キャラの生成
+        if (frameCount === next) {
+            generateNextEnemy();
         }
+
+        // 当たり判定
+        hitCheck();
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー
         // パーティクルの更新
@@ -126,7 +130,15 @@ function update() {
         });
 
         // 敵キャラの状態更新
-        enemy.posX += enemy.speed;
+        enemy.forEach((e) => {
+            e.update();
+        });
+    }
+
+    // 背景の更新
+    castle.posX -= 0.25;
+    if (castle.posX < -100) {
+        castle.posX = 560;
     }
 
     // 現在何フレーム目かを記録
@@ -175,6 +187,84 @@ function draw() {
     }
 }
 
+// 当たり判定
+function hitCheck() {
+    forEach((e) => {
+        // 自キャラと敵キャラの接触判定
+        let diffX = player.posX - e.posX;
+        let diffY = player.posY - e.posY;
+        // 2点間の距離を求める(3平方の定理)
+        let distance = Math.sqrt(diffX * diffX + diffY * diffY);
+        // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
+        if (distance < player.r + e.r) {
+            scene      = Scenes.GameOver;
+            frameCount = 0;
+
+            // パーティクルの生成
+            for (let i = 0; i < 300; i++) {
+                particles.push(new Particle(player.posX, player.posY));
+            }
+        }
+    });
+}
+
+// 敵キャラの生成
+function generateNextEnemy() {
+    let newEnemy = new Enemy(
+        600,
+        400 - (Math.random() < 0.5 ? 0 : 50),
+        12,
+        "./asset/marisa.png",
+        4 + 5 * Math.random(),
+        0,
+    );
+    enemy.push(newEnemy);
+    next = Math.floor(frameCount + 30 + 80 * Math.random());
+}
+
+// 背景の描画
+function drawBack(g) {
+    let interval = 16;
+    let ratio    = 5;
+    let center   = 240;
+    let baseLine = 360
+    // 背景を黒く塗りつぶして初期化
+    g.fillStyle = "rgb(0, 0, 0)";
+    g.fillRect(0, 0, 480, 480);
+    // 月と城の描画
+    moon.draw(g);
+    castle.draw(g);
+    // 地面のラインアート描画
+    for (let i = 0; i < 480 / interval + 1; i++) {
+        let x1 = i * interval - (frameCount % interval);
+        let x2 = center + (x1 - center) * ratio;
+        g.strokeStyle = "#98660b";
+        g.lineWidth   = 2;
+        g.beginPath();
+        g.moveTo(x1, baseLine);
+        g.lineTo(x2, 480);
+        g.stroke();
+    }
+}
+
+// スコア描画
+function drawScore(g) {
+    g.fillStyle         = "rgb(255, 255, 255)";
+    g.font              = "16px Arial";
+    let scoreLabel      = "SCORE: " + score;
+    let scoreLabelWidth = g.measureText(scoreLabel).width; // スコアの文字列の幅を取得
+    g.fillText(scoreLabel, 460 - scoreLabelWidth, 40);
+}
+
+// ゲームオーバー描画
+function drawGameOver(g) {
+    g.fillStyle       = "rgb(255, 255, 255)";
+    g.font            = "bold 48px Arial";
+    let gameOverLabel = "GAME OVER";
+    let gameOverLabelWidth = g.measureText(gameOverLabel).width; // スコアの文字列の幅を取得
+    g.fillText(gameOverLabel, 240 - gameOverLabelWidth / 2, 240);
+}
+
 // スプライトクラス
 class Sprite {
     image        = null;
@@ -191,6 +281,50 @@ class Sprite {
             this.posX - this.image.width / 2,
             this.posY - this.image.height / 2
         );
+    }
+}
+
+// 自キャラクラス
+class Player extends Sprite {
+    constructor(posX, posY, r, imageUrl, speed, acceleraiton) {
+        super();
+        this.posX         = posX;
+        this.posY         = posY;
+        this.r            = r;
+        this.image        = new Image();
+        this.image.src    = imageUrl;
+        this.speed        = speed;
+        this.acceleraiton = acceleraiton;
+    }
+
+    update() {
+        // 自キャラの状態更新
+        this.speed += this.acceleraiton;
+        this.posY += this.speed;
+        if (this.posY > this.baseLine) {
+            this.posY         = this.baseLine;
+            this.speed        = 0;
+            this.acceleraiton = 0;
+        }
+    }
+}
+
+// エネミークラス
+class Enemy extends Sprite {
+    constructor(posX, posY, r, imageUrl, speed, acceleraiton) {
+        super();
+        this.posX         = posX;
+        this.posY         = posY;
+        this.r            = r;
+        this.image        = new Image();
+        this.image.src    = imageUrl;
+        this.speed        = speed;
+        this.acceleraiton = acceleraiton;
+    }
+
+    update() {
+        // 敵キャラの状態更新
+        this.posX -= this.speed;
     }
 }
 
