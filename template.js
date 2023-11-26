@@ -61,14 +61,18 @@ function init() {
 }
 
 function keydown(e) {
-    // 地面にいない場合はジャンプしない
-    if (player.posY < defaultPositionY) {
-        return;
+    if (scene === Scenes.GameMain) {
+        // ゲームプレイ中
+        if (player.speed === 0) {
+            player.speed        = -20;
+            player.acceleraiton = 1.5;
+        }
+    } else if (scene === Scenes.GameOver) {
+        // ゲームオーバー中
+        if (frameCount > 60) {
+            init();
+        }
     }
-    // Y軸方向への1フレームあたりの移動量
-    player.speed = -20;
-    // (重力)
-    player.acceleraiton = 1.5;
 }
 
 function gameloop() {
