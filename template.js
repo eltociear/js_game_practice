@@ -7,6 +7,7 @@ let score;
 let scene;
 let frameCount;
 let bound;
+let particles;
 
 const Scenes = {
     GameMain: "GameMain",
@@ -48,6 +49,9 @@ function init() {
     enemy.speed        = 5;
     enemy.acceleraiton = 0;
     enemy.r            = 16; // 接触判定用の半径
+
+    // パーティクルの初期化
+    particles = [];
 
     // ゲーム管理データの初期化
     score      = 0;
@@ -103,24 +107,19 @@ function update() {
         // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
         if (distance < player.r + enemy.r) {
             scene               = Scenes.GameOver;
-            player.speed        = -20;
-            player.acceleraiton = 0.5;
             frameCount          = 0;
+
+            // パーティクルの生成
+            for (let i = 0; i < 300; i++) {
+                particles.push(new Particle(player.posX, player.posY));
+            }
         }
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー
-        // 自キャラの状態更新
-        player.speed += player.acceleraiton;
-        player.posY  += player.speed;
-        if (player.posX < 20 || player.posX > 460) {
-            // 画面端に移動したらバウンド
-            bound = !bound;
-        }
-        if (bound) {
-            player.posX += 30;
-        } else {
-            player.posX -= 30;
-        }
+        // パーティクルの更新
+        particles.forEach((p) => {
+            p.update();
+        });
 
         // 敵キャラの状態更新
         enemy.posX += enemy.speed;
@@ -158,22 +157,10 @@ function draw() {
         g.fillStyle = "rgb(0, 0, 0)";
         g.fillRect(0, 0, 480, 480);
 
-        // 自キャラ描画
-        if (frameCount < 120) {
-            g.save();
-            g.translate(player.posX, player.posY);
-            // 30フレームで1回転
-            g.rotate(((frameCount % 30) * Math.PI / 2) / 30);
-            // 拡大描画
-            g.drawImage(
-                player.image,
-                -player.image.width / 2,
-                -player.image.height / 2,
-                player.image.width + frameCount,
-                player.image.height + frameCount
-            );
-            g.restore();
-        }
+        // パーティクル描画
+        particles.forEach((p) => {
+            p.draw(g);
+        });
 
         // ゲームオーバー表示
         g.fillStyle = "rgb(255, 255, 255)";
@@ -200,5 +187,42 @@ class Sprite {
             this.posX - this.image.width / 2,
             this.posY - this.image.height / 2
         );
+    }
+}
+
+// パーティクルクラス
+class Particle extends Sprite {
+    baseLine     = 0;
+    acceleraiton = 0;
+    speedX       = 0;
+    speedY       = 0;
+
+    constructor(x, y) {
+        super();
+        this.posX         = x;
+        this.posY         = y;
+        this.baseLine     = 420;
+        this.acceleraiton = 0.5;
+        let angle         = (Math.PI * 5) / 4 + (Math.PI / 2) * Math.random();
+        this.speed        = 5 + Math.random() * 20;
+        this.speedX       = this.speed * Math.cos(angle);
+        this.speedY       = this.speed * Math.sin(angle);
+        this.r            = 2;
+    }
+
+    update() {
+        this.speedX *= 0.97;
+        this.speedY += this.acceleraiton;
+        this.posX   += this.speedX;
+        this.posY   += this.speedY;
+        if (this.posY > this.baseLine) {
+            this.posY   = this.baseLine;
+            this.speedY = this.speedY * -1 * (Math.random() * 0.5 + 0.3);
+        }
+    }
+
+    draw(g) {
+        g.fillStyle = "rgb(255, 50, 50)";
+        g.fillRect(this.posX - this.r, this.posY - this.r, this.r * 2, this.r * 2);
     }
 }
