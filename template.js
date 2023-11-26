@@ -2,9 +2,7 @@ let canvas, g;
 const defaultPositionX = 100;
 const defaultEnemyPositionX = 600;
 const defaultPositionY = 400;
-let characterPosX, characterPosY, characterImage, characterR; // 自キャラ関連の変数
-let enemyPosX, enemyPosY, enemyImage, enemySpeed, enemyR; // 敵関連の変数
-let speed, acceleraiton;
+let player, enemy;
 let score;
 let scene;
 let frameCount;
@@ -32,21 +30,24 @@ onload = function () {
  */
 function init() {
     // 自キャラの初期化
-    speed              = 0;
-    acceleraiton       = 0;
-    characterPosX      = defaultPositionX;
-    characterPosY      = defaultPositionY;
-    characterR         = 16; // 接触判定用の半径
-    characterImage     = new Image();
-    characterImage.src = "./asset/reimu.png";
+    player              = new Sprite();
+    player.image        = new Image();
+    player.image.src    = "./asset/reimu.png";
+    player.posX         = defaultPositionX;
+    player.posY         = defaultPositionY;
+    player.speed        = 0;
+    player.acceleraiton = 0;
+    player.r            = 16; // 接触判定用の半径
 
     // 敵の初期化
-    enemyPosX      = defaultEnemyPositionX; // 右画面外
-    enemyPosY      = defaultPositionY;
-    enemyR         = 16; // 接触判定用の半径
-    enemyImage     = new Image();
-    enemyImage.src = "./asset/marisa.png";
-    enemySpeed     = 5;
+    enemy              = new Sprite();
+    enemy.image        = new Image();
+    enemy.image.src    = "./asset/marisa.png";
+    enemy.posX         = defaultEnemyPositionX; // 右画面外
+    enemy.posY         = defaultPositionY;
+    enemy.speed        = 5;
+    enemy.acceleraiton = 0;
+    enemy.r            = 16; // 接触判定用の半径
 
     // ゲーム管理データの初期化
     score      = 0;
@@ -57,13 +58,13 @@ function init() {
 
 function keydown(e) {
     // 地面にいない場合はジャンプしない
-    if (characterPosY < defaultPositionY) {
+    if (player.posY < defaultPositionY) {
         return;
     }
     // Y軸方向への1フレームあたりの移動量
-    speed = -20;
+    player.speed = -20;
     // (重力)
-    acceleraiton = 1.5;
+    player.acceleraiton = 1.5;
 }
 
 function gameloop() {
@@ -77,52 +78,52 @@ function gameloop() {
 function update() {
     if (scene === Scenes.GameMain) {
         // ゲーム中
-        speed = speed + acceleraiton;
-        characterPosY = characterPosY + speed;
+        player.speed = player.speed + player.acceleraiton;
+        player.posY  = player.posY + player.speed;
         // 地面に着いたら速度と加速度を0にする
-        if (characterPosY > defaultPositionY) {
-            characterPosY = defaultPositionY;
-            speed         = 0;
-            acceleraiton  = 0;
+        if (player.posY > defaultPositionY) {
+            player.posY = defaultPositionY;
+            player.speed        = 0;
+            player.acceleraiton = 0;
         }
 
         // 敵の状態更新
-        enemyPosX -= enemySpeed;
-        if (enemyPosX < -100) {
-            enemyPosX = defaultEnemyPositionX;
+        enemy.posX -= enemy.speed;
+        if (enemy.posX < -100) {
+            enemy.posX = defaultEnemyPositionX;
             // 敵が画面外に出たらスコアを加算
             score += 100;
         }
 
         // 自キャラと敵キャラの接触判定
-        let diffX = characterPosX - enemyPosX;
-        let diffY = characterPosY - enemyPosY;
+        let diffX = player.posX - enemy.posX;
+        let diffY = player.posY - enemy.posY;
         // 2点間の距離を求める(3平方の定理)
         let distance = Math.sqrt(diffX * diffX + diffY * diffY);
         // (当たった時の処理)自キャラと敵キャラの距離が半径の和より小さい場合は接触している
-        if (distance < characterR + enemyR) {
-            scene        = Scenes.GameOver;
-            speed        = -20;
-            acceleraiton = 0.5;
-            frameCount   = 0;
+        if (distance < player.r + enemy.r) {
+            scene               = Scenes.GameOver;
+            player.speed        = -20;
+            player.acceleraiton = 0.5;
+            frameCount          = 0;
         }
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー
         // 自キャラの状態更新
-        speed         += acceleraiton;
-        characterPosY += speed;
-        if (characterPosX < 20 || characterPosX > 460) {
+        player.speed += player.acceleraiton;
+        player.posY  += player.speed;
+        if (player.posX < 20 || player.posX > 460) {
             // 画面端に移動したらバウンド
             bound = !bound;
         }
         if (bound) {
-            characterPosX += 30;
+            player.posX += 30;
         } else {
-            characterPosX -= 30;
+            player.posX -= 30;
         }
 
         // 敵キャラの状態更新
-        enemyPosX += enemySpeed;
+        enemy.posX += enemy.speed;
     }
 
     // 現在何フレーム目かを記録
@@ -142,16 +143,16 @@ function draw() {
 
         // 自キャラ描画
         g.drawImage(
-            characterImage,
-            characterPosX - characterImage.width / 2,
-            characterPosY - characterImage.height / 2
+            player.image,
+            player.posX - player.image.width / 2,
+            player.posY - player.image.height / 2
         );
 
         // 敵キャラ描画
         g.drawImage(
-            enemyImage,
-            enemyPosX - enemyImage.width / 2,
-            enemyPosY - enemyImage.height / 2
+            enemy.image,
+            enemy.posX - enemy.image.width / 2,
+            enemy.posY - enemy.image.height / 2
         );
 
         // スコア表示
@@ -168,16 +169,16 @@ function draw() {
         // 自キャラ描画
         if (frameCount < 120) {
             g.save();
-            g.translate(characterPosX, characterPosY);
+            g.translate(player.posX, player.posY);
             // 30フレームで1回転
             g.rotate(((frameCount % 30) * Math.PI / 2) / 30);
             // 拡大描画
             g.drawImage(
-                characterImage,
-                -characterImage.width / 2,
-                -characterImage.height / 2,
-                characterImage.width + frameCount,
-                characterImage.height + frameCount
+                player.image,
+                -player.image.width / 2,
+                -player.image.height / 2,
+                player.image.width + frameCount,
+                player.image.height + frameCount
             );
             g.restore();
         }
@@ -189,4 +190,14 @@ function draw() {
         let gameOverLabelWidth = g.measureText(gameOverLabel).width; // スコアの文字列の幅を取得
         g.fillText(gameOverLabel, 240 - gameOverLabelWidth / 2, 240);
     }
+}
+
+// スプライトクラス
+class Sprite {
+    image        = null;
+    posX         = 0;
+    posY         = 0;
+    speed        = 0;
+    acceleraiton = 0;
+    r            = 0;
 }
