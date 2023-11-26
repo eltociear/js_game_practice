@@ -1,7 +1,7 @@
 let canvas, g;
-const defaultPositionX = 100;
+const defaultPositionX      = 100;
 const defaultEnemyPositionX = 600;
-const defaultPositionY = 400;
+const defaultPositionY      = 400;
 let player, enemy, particles, moon, castle;
 let score;
 let scene;
@@ -36,7 +36,7 @@ onload = function () {
  */
 function init() {
     // 自キャラの初期化
-    player = new Player(100, 400, 16, "./asset/reimu.png", 0, 0);
+    player = new Player(defaultPositionX, defaultPositionY, 16, "./asset/reimu.png", 0, 0);
 
     // 敵キャラの初期化
     enemy = [];
@@ -69,9 +69,9 @@ let isKeyDown = false;
 function keydown(e) {
     if (scene === Scenes.GameMain) {
         // ゲームプレイ中
-        if (player.speed === 0) {
-            player.speed        = -20;
-            player.acceleraiton = 1.5;
+        if (player.speed === 0 && !isKeyDown) {
+            player.speed        = -18;
+            player.acceleraiton = 1.0;
         }
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー中
@@ -135,7 +135,7 @@ function update() {
         });
     }
 
-    // 背景の更新
+    // 背景の城を更新
     castle.posX -= 0.25;
     if (castle.posX < -100) {
         castle.posX = 560;
@@ -152,44 +152,44 @@ function draw() {
     g.imageSmoothingEnabled = false;
 
     if (scene === Scenes.GameMain) {
-        // 画面を黒でクリア
-        g.fillStyle = "rgb(0, 0, 0)";
-        g.fillRect(0, 0, 480, 480);
+        // 背景の描画
+        drawBack(g);
 
         // 自キャラ描画
         player.draw(g);
 
         // 敵キャラ描画
-        enemy.draw(g);
+        enemy.forEach((e) => {
+            e.draw(g);
+        });
 
-        // スコア表示
-        g.fillStyle         = "rgb(255, 255, 255)";
-        g.font              = "16px Arial";
-        let scoreLabel      = "SCORE: " + score;
-        let scoreLabelWidth = g.measureText(scoreLabel).width; // スコアの文字列の幅を取得
-        g.fillText(scoreLabel, 460 - scoreLabelWidth, 40);
+        // スコア描画
+        drawScore(g);
     } else if (scene === Scenes.GameOver) {
-        // 画面を黒でクリア
-        g.fillStyle = "rgb(0, 0, 0)";
-        g.fillRect(0, 0, 480, 480);
+        // 背景の描画
+        drawBack(g);
 
         // パーティクル描画
         particles.forEach((p) => {
             p.draw(g);
         });
 
-        // ゲームオーバー表示
-        g.fillStyle = "rgb(255, 255, 255)";
-        g.font      = "48px Arial";
-        let gameOverLabel = "GAME OVER";
-        let gameOverLabelWidth = g.measureText(gameOverLabel).width; // スコアの文字列の幅を取得
-        g.fillText(gameOverLabel, 240 - gameOverLabelWidth / 2, 240);
+        // 敵キャラ描画
+        enemy.forEach((e) => {
+            e.draw(g);
+        });
+
+        // スコア描画
+        drawScore(g);
+
+        // ゲームオーバー描画
+        drawGameOver(g);
     }
 }
 
 // 当たり判定
 function hitCheck() {
-    forEach((e) => {
+    enemy.forEach((e) => {
         // 自キャラと敵キャラの接触判定
         let diffX = player.posX - e.posX;
         let diffY = player.posY - e.posY;
@@ -351,7 +351,7 @@ class Particle extends Sprite {
     update() {
         this.speedX *= 0.97;
         this.speedY += this.acceleraiton;
-        this.posX   += this.speedX;
+        this.posX   += this.speedX - 2;
         this.posY   += this.speedY;
         if (this.posY > this.baseLine) {
             this.posY   = this.baseLine;
