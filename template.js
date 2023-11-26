@@ -142,18 +142,10 @@ function draw() {
         g.fillRect(0, 0, 480, 480);
 
         // 自キャラ描画
-        g.drawImage(
-            player.image,
-            player.posX - player.image.width / 2,
-            player.posY - player.image.height / 2
-        );
+        player.draw(g);
 
         // 敵キャラ描画
-        g.drawImage(
-            enemy.image,
-            enemy.posX - enemy.image.width / 2,
-            enemy.posY - enemy.image.height / 2
-        );
+        enemy.draw(g);
 
         // スコア表示
         g.fillStyle         = "rgb(255, 255, 255)";
@@ -200,4 +192,13 @@ class Sprite {
     speed        = 0;
     acceleraiton = 0;
     r            = 0;
+
+    // 描画処理
+    draw(g) {
+        g.drawImage(
+            this.image,
+            this.posX - this.image.width / 2,
+            this.posY - this.image.height / 2
+        );
+    }
 }
