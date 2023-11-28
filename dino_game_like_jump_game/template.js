@@ -71,7 +71,7 @@ function keydown(e) {
         // ゲームプレイ中
         if (player.speed === 0 && !isKeyDown) {
             player.speed        = -18;
-            player.acceleraiton = 1.0;
+            player.acceleration = 1.0;
         }
     } else if (scene === Scenes.GameOver) {
         // ゲームオーバー中
@@ -84,7 +84,7 @@ function keydown(e) {
 
 function keyup(e) {
     if (player.speed < 0) {
-        player.acceleraiton = 2.5;
+        player.acceleration = 2.5;
     }
     isKeyDown = false;
 }
@@ -271,7 +271,7 @@ class Sprite {
     posX         = 0;
     posY         = 0;
     speed        = 0;
-    acceleraiton = 0;
+    acceleration = 0;
     r            = 0;
 
     // 描画処理
@@ -286,7 +286,7 @@ class Sprite {
 
 // 自キャラクラス
 class Player extends Sprite {
-    constructor(posX, posY, r, imageUrl, speed, acceleraiton) {
+    constructor(posX, posY, r, imageUrl, speed, acceleration) {
         super();
         this.posX         = posX;
         this.posY         = posY;
@@ -294,24 +294,24 @@ class Player extends Sprite {
         this.image        = new Image();
         this.image.src    = imageUrl;
         this.speed        = speed;
-        this.acceleraiton = acceleraiton;
+        this.acceleration = acceleration;
     }
 
     update() {
         // 自キャラの状態更新
-        this.speed += this.acceleraiton;
-        this.posY += this.speed;
+        this.speed = this.speed + this.acceleration;
+        this.posY  = this.posY + this.speed;
         if (this.posY > this.baseLine) {
             this.posY         = this.baseLine;
             this.speed        = 0;
-            this.acceleraiton = 0;
+            this.acceleration = 0;
         }
     }
 }
 
 // エネミークラス
 class Enemy extends Sprite {
-    constructor(posX, posY, r, imageUrl, speed, acceleraiton) {
+    constructor(posX, posY, r, imageUrl, speed, acceleration) {
         super();
         this.posX         = posX;
         this.posY         = posY;
@@ -319,7 +319,7 @@ class Enemy extends Sprite {
         this.image        = new Image();
         this.image.src    = imageUrl;
         this.speed        = speed;
-        this.acceleraiton = acceleraiton;
+        this.acceleration = acceleration;
     }
 
     update() {
@@ -331,7 +331,7 @@ class Enemy extends Sprite {
 // パーティクルクラス
 class Particle extends Sprite {
     baseLine     = 0;
-    acceleraiton = 0;
+    acceleration = 0;
     speedX       = 0;
     speedY       = 0;
 
@@ -340,7 +340,7 @@ class Particle extends Sprite {
         this.posX         = x;
         this.posY         = y;
         this.baseLine     = 420;
-        this.acceleraiton = 0.5;
+        this.acceleration = 0.5;
         let angle         = (Math.PI * 5) / 4 + (Math.PI / 2) * Math.random();
         this.speed        = 5 + Math.random() * 20;
         this.speedX       = this.speed * Math.cos(angle);
@@ -350,7 +350,7 @@ class Particle extends Sprite {
 
     update() {
         this.speedX *= 0.97;
-        this.speedY += this.acceleraiton;
+        this.speedY += this.acceleration;
         this.posX   += this.speedX - 2;
         this.posY   += this.speedY;
         if (this.posY > this.baseLine) {
