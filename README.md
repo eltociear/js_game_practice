@@ -1,0 +1,1 @@
+JavaScriptの勉強用

@@ -1,0 +1,169 @@
+<html>
+    <head>
+        <title>Reversi</title>
+        <meta charset="utf-8">
+    </head>
+
+    <body onload="init()">
+        <input type="button" value="先攻" onclick="buttonStartClick(this.value);">
+        <input type="button" value="後攻" onclick="buttonStartClick(this.value);"><br><br>
+        <canvas id="canvas" width="600" height="600" tabindex="1"></canvas>
+        <canvas id="canvas2" hidden width="600" height="600" tabindex="2"></canvas> <!-- 裏画面として使ってチラつき防止のためhidden -->
+
+        <script>
+            let canvas, canvas2;
+            let context;
+            let ban = [];
+            let bg;
+            let strGameover = "";
+            let gmode;
+            let lastPx = 10;
+            let lastPy = 10;
+            let turn   = true;
+            let imgr, imgm;
+            let gameStart = false;
+
+            function init() {
+                canvas  = document.getElementById("canvas");
+                context = canvas.getContext("2d");
+
+                canvas.addEventListener("click", mouseClick, false);
+                canvas.focus();
+                canvas = document
+                bg     = canvas.getContext("2d");
+
+                for (let i = 0; i < 20; i++) {
+                    ban[i] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // 初期化
+                }
+
+                setInterval(TickHandler, 1000);
+                gmode = true;
+                draw();
+            }
+
+            /**
+             * 駒が白黒か画像か決めるやつ（多分不要）
+             */
+            function chggmode() {
+                gmode = !gmode;
+            }
+
+            function TickHandler() {
+                draw();
+                if (turn === true) return;
+                if (gameStart === false) return;
+
+                document.title = "comの番" + thinkTime;
+
+                if (thinkTime > 1) {
+                    // 敵がすぐ打ってくると分かりづらいので思考中っぽい演出
+                    thinkTime--;
+                } else if (thinkTime === 1) {
+                    // 四隅取れるか確認
+                    let kazu = yosumi();
+
+                    if (kazu === 0) {
+                        // 四隅取れないなら全チェックして一番裏返るとこをを探す
+                        kazu = allSearch();
+                    }
+                    if (kazu > 0) {
+                        // 0以上ならそこに打てる
+                        ban[lastPx][lastPy] = siroKuro;
+                    } else {
+                        // 埋まっている時の処理
+                        let fullGame = katiMake(); // 勝敗判定
+                        if (fullGame === 0) {
+                            strGameover = "あなたの勝ち";
+                        } else if (fullGame === 1) {
+                            strGameover = senkou ? "あなたの勝ち" : "私の勝ち";
+                        } else if (fullGame === 2) {
+                            strGameover = senkou ? "私の勝ち" : "あなたの勝ち";
+                        }
+                        gameStart = false;
+                    }
+                    thinkTime--;
+                } else {
+                    // comが打った後にもう一度埋まっていないかを確認し、埋まっていたら勝ち負け判定
+                    reverce();
+                    let tmpX = lastPx;
+                    let tmpY = lastPy;
+                    siroKuro = (siroKuro === 1) ? 2 : 1;
+
+                    if (allSearch() === 0) {
+                        let fullGame = katiMake(); // 勝敗判定
+                        if (fullGame === 0) {
+                            strGameover = "あなたの勝ち";
+                        } else if (fullGame === 1) {
+                            strGameover = senkou ? "あなたの勝ち" : "私の勝ち";
+                        } else if (fullGame === 2) {
+                            strGameover = senkou ? "私の勝ち" : "あなたの勝ち";
+                        }
+                        gameStart = false;
+
+                        return; // 負け
+                    }
+
+                    lastPx = tmpX;
+                    lastPy = tmpY;
+
+                    // 勝ち負けが確定していないなら次のターン
+                    document.title = "あなたの番";
+                    turn = true;
+                }
+            }
+
+            function buttonStartClick(sender) {
+                strGameover = " ";
+                if (sender === "先攻") {
+                    turn           = true;
+                    senkou         = true; // 先攻：黒
+                    thinkTime      = 2;
+                    document.title = "あなたの番";
+                } else {
+                    turn      = false;
+                    senkou    = false; // 後攻：白
+                    thinkTime = 2;
+                }
+
+                for (let x = 0; x < 8; x++) {
+                    for (let y = 0; y < 8; y++) {
+                        ban[x][y] = 0;
+                    }
+                }
+                ban[4][4] = 1; ban[3][3] = 1; ban[3][4] = 2; ban[4][3] = 2; // 初期配置に白黒4個置く
+                shiroKuro = 1;
+                gameStart = true;
+
+                draw();
+            }
+
+            function draw() {
+                // 描画
+                let width  = canvas.width;
+                let height = canvas.height;
+
+                // 背景
+                bg.fillStyle = "DarkGreen";
+                bg.fillRect(0, 0, width, height);
+
+                bg.strokeStyle = "Black";
+                bg.lineWidth   = 2;
+                for (let i; i < 9; i++) {
+                    // 縦線
+                    bg.beginPath();
+                    bg.moveTo(i * 75, 0);
+                    bg.lineTo(i * 75, 600);
+                    bg.closePath();
+                    bg.stroke();
+                }
+                for (let i; i < 9; i++) {
+                    // 横線
+                    bg.beginPath();
+                    bg.moveTo(0, i * 75);
+                    bg.lineTo(600, i * 75);
+                    bg.closePath();
+                    bg.stroke();
+                }
+            }
+        </script>
+</html>
