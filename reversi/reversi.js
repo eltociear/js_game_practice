@@ -180,10 +180,10 @@ function draw() {
                     bg.drawImage(imgr, x * 75 - 5, y * 75 - 5, 90, 70);
                 }
             }
-            if (lastPx === x && lastPy === y) {
-                bg.strokeStyle = "Red";
+            if (lastPx == x && lastPy == y && lastPx < 8 && lastPy < 8 && lastPx > 0 && lastPy > 0) {
+                bg.strokeStyle = 'Red';
                 bg.beginPath();
-                bg.strokeRect(x * 75 + 37, y * 75 + 37, 0, Math.PI * 2);
+                bg.arc(x * 75 + 37, y * 75 + 37, 35, 0, 2 * Math.PI);    // 円の描画
                 bg.stroke();
             }
         }
