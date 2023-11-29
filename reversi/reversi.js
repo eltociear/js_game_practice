@@ -256,7 +256,7 @@ function katiMake() {
             if (ban[x][y] === 2) wht++;
         }
     }
-    if (blk + whi === 64) {
+    if (blk + wht === 64) {
         return blk > wht ? 1 : 2;
     }
 
@@ -506,49 +506,49 @@ function searchLeft(x, y, b) {
 }
 
 function reverceUp(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x][y - i] = b;
     }
 }
 
 function reverceDown(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x][y + i] = b;
     }
 }
 
 function reverceLeft(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x - i][y] = b;
     }
 }
 
 function reverceRight(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x + i][y] = b;
     }
 }
 
 function reverceUpRight(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x + i][y - i] = b;
     }
 }
 
 function reverceRightDown(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x + i][y + i] = b;
     }
 }
 
 function reverceDownLeft(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x - i][y + i] = b;
     }
 }
 
 function reverceLeftUp(x, y, b, n) {
-    for (let i = 1; i < n; i++) {
+    for (var i = 1; i <= n; i++) {
         ban[x - i][y - i] = b;
     }
 }
