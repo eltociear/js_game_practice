@@ -9,6 +9,7 @@ let lastPy = 10;
 let turn   = true;
 let imgr, imgm;
 let gameStart = false;
+let shiroKuro;
 
 onload = function () {
     // 描画コンテキストの取得
@@ -60,7 +61,7 @@ function TickHandler() {
         }
         if (kazu > 0) {
             // 0以上ならそこに打てる
-            ban[lastPx][lastPy] = siroKuro;
+            ban[lastPx][lastPy] = shiroKuro;
         } else {
             // 埋まっている時の処理
             let fullGame = katiMake(); // 勝敗判定
@@ -79,7 +80,7 @@ function TickHandler() {
         reverce();
         let tmpX = lastPx;
         let tmpY = lastPy;
-        siroKuro = (siroKuro === 1) ? 2 : 1;
+        shiroKuro = (shiroKuro === 1) ? 2 : 1;
 
         if (allSearch() === 0) {
             let fullGame = katiMake(); // 勝敗判定
@@ -223,7 +224,7 @@ async function mouseClick(e) {
 
     lastPx = Math.floor(x / 75);
     lastPy = Math.floor(y / 75);
-    let lastB = Search(0);
+    let lastB = search(0);
     if (lastB === 0) {
         isRun = false;
         return; // 打てない
@@ -237,7 +238,7 @@ async function mouseClick(e) {
     await _SLEEP(1000);
     reverce();
     turn = false;
-    siroKuro = (siroKuro === 1) ? 2 : 1;
+    shiroKuro = (shiroKuro === 1) ? 2 : 1;
 
     thinkTime = 2;
     draw();
@@ -308,23 +309,23 @@ function yosumi() {
  * 裏返るかどうかを調べて、可能なら裏返す
  */
 function reverce() {
-    let no = searchUp(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceUp(lastPx, lastPy, siroKuro, no);
-    no = searchDown(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceDown(lastPx, lastPy, siroKuro, no);
-    no = searchLeft(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceLeft(lastPx, lastPy, siroKuro, no);
-    no = searchRight(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceRight(lastPx, lastPy, siroKuro, no);
+    let no = searchUp(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceUp(lastPx, lastPy, shiroKuro, no);
+    no = searchDown(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceDown(lastPx, lastPy, shiroKuro, no);
+    no = searchLeft(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceLeft(lastPx, lastPy, shiroKuro, no);
+    no = searchRight(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceRight(lastPx, lastPy, shiroKuro, no);
 
-    no = searchUpRight(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceUpRight(lastPx, lastPy, siroKuro, no);
-    no = searchRightDown(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceRightDown(lastPx, lastPy, siroKuro, no);
-    no = searchDownLeft(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceDownLeft(lastPx, lastPy, siroKuro, no);
-    no = searchLeftUp(lastPx, lastPy, siroKuro);
-    if (no !== 0) reverceLeftUp(lastPx, lastPy, siroKuro, no);
+    no = searchUpRight(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceUpRight(lastPx, lastPy, shiroKuro, no);
+    no = searchRightDown(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceRightDown(lastPx, lastPy, shiroKuro, no);
+    no = searchDownLeft(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceDownLeft(lastPx, lastPy, shiroKuro, no);
+    no = searchLeftUp(lastPx, lastPy, shiroKuro);
+    if (no !== 0) reverceLeftUp(lastPx, lastPy, shiroKuro, no);
 }
 
 function getRandomInt(max) {
@@ -359,22 +360,22 @@ function search(t) {
     if (ban[lastPx][lastPy] !== 0 && t === 1) return 0;
 
     let up = 0;
-    up = searchUp(lastPx, lastPy, siroKuro);
+    up = searchUp(lastPx, lastPy, shiroKuro);
     let down = 0;
-    down = searchDown(lastPx, lastPy, siroKuro);
+    down = searchDown(lastPx, lastPy, shiroKuro);
     let left = 0;
-    left = searchLeft(lastPx, lastPy, siroKuro);
+    left = searchLeft(lastPx, lastPy, shiroKuro);
     let right = 0;
-    right = searchRight(lastPx, lastPy, siroKuro);
+    right = searchRight(lastPx, lastPy, shiroKuro);
 
     let upRight = 0;
-    upRight = searchUpRight(lastPx, lastPy, siroKuro);
+    upRight = searchUpRight(lastPx, lastPy, shiroKuro);
     let rightDown = 0;
-    rightDown = searchRightDown(lastPx, lastPy, siroKuro);
+    rightDown = searchRightDown(lastPx, lastPy, shiroKuro);
     let downLeft = 0;
-    downLeft = searchDownLeft(lastPx, lastPy, siroKuro);
+    downLeft = searchDownLeft(lastPx, lastPy, shiroKuro);
     let leftUp = 0;
-    leftUp = searchLeftUp(lastPx, lastPy, siroKuro);
+    leftUp = searchLeftUp(lastPx, lastPy, shiroKuro);
 
     let all = up + down + left + right + upRight + rightDown + downLeft + leftUp;
     return all;
