@@ -10,13 +10,18 @@ let turn   = true;
 let imgr, imgm;
 let gameStart = false;
 
-function init() {
+onload = function () {
+    // 描画コンテキストの取得
     canvas  = document.getElementById("canvas");
     context = canvas.getContext("2d");
+    // 初期化
+    init();
+};
 
+function init() {
     canvas.addEventListener("click", mouseClick, false);
     canvas.focus();
-    canvas = document
+    canvas = document.getElementById("canvas2");
     bg     = canvas.getContext("2d");
 
     for (let i = 0; i < 20; i++) {
