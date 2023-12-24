@@ -57,17 +57,17 @@
                 a = particles1[i];
                 b = particles2[j];
 
-                dx = a.x - b.x;
-                dy = a.y - b.y;
+                dx = a.x - b.x; // パーティクル間の距離
+                dy = a.y - b.y; // パーティクル間の距離
                 d = Math.sqrt(dx * dx + dy * dy);
-                if (d > 0) {
-                    F = g * 1 / d;
-                    fx += (F * dx);
-                    fy += (F * dy);
+                if (d > 0 && d < 80) {
+                    F = g * 1 / d; // パーティクル間の力
+                    fx += (F * dx); // パーティクルに働く力
+                    fy += (F * dy); // パーティクルに働く力
                 }
             }
-            a.vx = (a.vx + fx);
-            a.vy = (a.vy + fy);
+            a.vx = (a.vx + fx) * 0.5;
+            a.vy = (a.vy + fy) * 0.5;
             a.x += a.vx;
             a.y += a.vy;
 
@@ -81,13 +81,14 @@
         }
     }
 
-    yellow = create(4, "yellow"); // 他のパーティクルと相互作用する
+    yellow = create(200, "yellow"); // 他のパーティクルと相互作用する
+    red    = create(200, "red"); // 他のパーティクルと相互作用しない
 
     /**
      * パーティクルを更新する
      */
     update = () => {
-        rule(yellow, yellow, -1);
+        rule(yellow, yellow, 1);
         m.clearRect(0, 0, 500, 500);
         draw(0, 0, "black", 500);
         for (let i = 0; i < particles.length; i++) {
