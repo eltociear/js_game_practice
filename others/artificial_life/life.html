@@ -42,6 +42,13 @@
         return group;
     }
 
+    /**
+     * パーティクルの相互作用を定義する
+     *
+     * @param {array} パーティクル1
+     * @param {array} パーティクル2
+     * @param {number} 重力定数
+     */
     rule = (particles1, particles2, g) => {
         for (let i = 0; i < particles1.length; i++) {
             fx = 0;
@@ -59,12 +66,22 @@
                     fy += (F * dy);
                 }
             }
-            a.x += fx;
-            a.y += fy;
+            a.vx = (a.vx + fx);
+            a.vy = (a.vy + fy);
+            a.x += a.vx;
+            a.y += a.vy;
+
+            // 画面外に出ないようにする
+            if (a.x <= 0 || a.x >= 500) {
+                a.vx *= -1;
+            }
+            if (a.y <= 0 || a.y >= 500) {
+                a.vy *= -1;
+            }
         }
     }
 
-    yellow = create(2, "yellow"); // this particles is interactive each other
+    yellow = create(4, "yellow"); // 他のパーティクルと相互作用する
 
     /**
      * パーティクルを更新する
