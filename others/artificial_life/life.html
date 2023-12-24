@@ -81,9 +81,14 @@
         }
     }
 
-    yellow = create(200, "yellow");
-    red    = create(200, "red");
-    green  = create(200, "green");
+    const PARTICLE_NUMBER = 110;
+    let purple = create(PARTICLE_NUMBER, "purple");
+    let red    = create(PARTICLE_NUMBER, "red");
+    let yellow = create(PARTICLE_NUMBER, "yellow");
+    let green  = create(PARTICLE_NUMBER, "green");
+    let blue   = create(PARTICLE_NUMBER, "blue");
+    let cyan   = create(PARTICLE_NUMBER, "cyan");
+    let white  = create(PARTICLE_NUMBER, "white");
 
     /**
      * パーティクルを更新する
@@ -96,6 +101,11 @@
         rule(red, green, -0.34);
         rule(yellow, yellow, 0.15);
         rule(yellow, green, -0.2);
+        rule(yellow, purple, 0.2);
+        rule(blue, blue, 0.1);
+        rule(white, white, 0.1);
+        rule(purple, purple, 0.1);
+        rule(purple, white, -0.1);
 
         m.clearRect(0, 0, 500, 500);
         draw(0, 0, "black", 500);
